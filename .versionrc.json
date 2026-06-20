@@ -1,0 +1,6 @@
+{
+  "commitUrlFormat": "{{host}}/pixlcrashr/snipeit-fast-ux-app/commit/{{hash}}",
+  "compareUrlFormat": "{{host}}/pixlcrashr/snipeit-fast-ux-app/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "{{host}}/pixlcrashr/snipeit-fast-ux-app/issues/{{id}}",
+  "userUrlFormat": "{{host}}/{{user}}"
+}

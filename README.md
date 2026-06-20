@@ -1,31 +1,27 @@
-# SnipeIT Asset Entry
+# SnipeIT Fast UX
 
-A simple web application for quickly adding assets to SnipeIT inventory management system.
+A lightweight web application for quickly adding assets to a [Snipe-IT](https://snipeitapp.com/) inventory management instance. It provides a streamlined interface on top of the Snipe-IT API, authenticated via OAuth2.
 
-## Features
+## Prerequisites
 
-- **Company (Owner)**: Autocomplete search for existing companies; creates new if not found
-- **Asset Tag**: Auto-populated with next available tag (read-only)
-- **Asset Name**: Optional name field
-- **Serial Number**: Optional serial number field
-- **Model**: Autocomplete with auto-creation for new models
-- **Manufacturer**: Shown only when creating a new model (with autocomplete)
-- **Status**: Dropdown with existing status labels
-- **Notes**: Text area for additional information
-- **Default Location**: Autocomplete search for existing locations
-- **Requestable**: Checkbox for requestable status
-- **Image**: File upload or built-in camera capture
+- **Node.js** >= 22.12.0
+- A running **Snipe-IT** instance with an OAuth2 application configured
 
 ## Configuration
 
-Create a `.env` file in the project root:
+Copy `.env.example` to `.env` and fill in the values:
 
-```env
-SNIPEIT_API_URL=https://your-snipeit-instance.example.com/api/v1
-SNIPEIT_API_KEY=your-api-key-here
+```bash
+cp .env.example .env
 ```
 
-See `.env.example` for reference.
+| Variable | Description |
+| :--- | :--- |
+| `SNIPEIT_API_URL` | Base URL of your Snipe-IT API, e.g. `https://snipeit.example.com/api/v1` |
+| `SNIPEIT_OAUTH_CLIENT_ID` | OAuth2 client ID from your Snipe-IT OAuth application |
+| `SNIPEIT_OAUTH_CLIENT_SECRET` | OAuth2 client secret from your Snipe-IT OAuth application |
+| `SNIPEIT_OAUTH_REDIRECT_URI` | Redirect URI registered in your Snipe-IT OAuth application, e.g. `http://localhost:4321/api/auth/callback` |
+| `SESSION_SECRET` | A long, random secret used to sign session cookies |
 
 ## Development
 
@@ -33,26 +29,50 @@ See `.env.example` for reference.
 # Install dependencies
 npm install
 
-# Run dev server
+# Start the development server
 npm run dev
 ```
 
 The app will be available at `http://localhost:4321`.
 
-## API Endpoints
+## Production
 
-- `/api/companies` - Search and create companies
-- `/api/models` - Search and create models
-- `/api/statuses` - List status labels
-- `/api/locations` - Search locations
-- `/api/next-asset-tag` - Get next auto-increment asset tag
-- `/api/assets` - Create new asset
+### Docker Compose (recommended)
 
-## 🧞 Commands
+```bash
+# Build and start the container
+docker compose up -d
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
+The app will be exposed on port `4321`. Make sure your `.env` file is present in the project root before starting.
+
+### Manual build
+
+```bash
+npm run build
+node server.mjs
+```
+
+## Commands
+
+| Command | Action |
+| :--- | :--- |
+| `npm install` | Install dependencies |
+| `npm run dev` | Start local dev server at `http://localhost:4321` |
+| `npm run build` | Build for production into `./dist/` |
+| `npm run preview` | Preview the production build locally |
+
+## API Routes
+
+All Snipe-IT API calls are proxied through the application server to avoid exposing credentials to the browser.
+
+| Route | Description |
+| :--- | :--- |
+| `GET /api/auth/login` | Initiates the OAuth2 authorization flow |
+| `GET /api/auth/callback` | OAuth2 redirect callback; exchanges code for token |
+| `GET /api/auth/logout` | Clears the session and logs the user out |
+| `* /api/proxy/[...path]` | Authenticated proxy to the Snipe-IT API |
+
+## License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
