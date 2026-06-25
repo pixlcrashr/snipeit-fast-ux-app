@@ -4,16 +4,45 @@ A lightweight web application for quickly adding assets to a [Snipe-IT](https://
 
 ## Prerequisites
 
-- **Node.js** >= 22.12.0
 - A running **Snipe-IT** instance with an OAuth2 application configured
+
+## Quick Start with Docker
+
+A production Docker image is published to Docker Hub at [`pixlcrashr/snipeit-fast-ux`](https://hub.docker.com/r/pixlcrashr/snipeit-fast-ux). It is a lightweight Node.js 22 Alpine image (multi-stage build) that serves the Astro SSR app via Fastify on port `4321`.
+
+Tags:
+
+- `pixlcrashr/snipeit-fast-ux:latest` — latest release
+- `pixlcrashr/snipeit-fast-ux:X.Y.Z` — specific version (matching the Git tag `vX.Y.Z`)
+
+Pull and run with Docker:
+
+```bash
+docker pull pixlcrashr/snipeit-fast-ux:latest
+docker run -d \
+  --name snipeit-fast-ux \
+  -p 4321:4321 \
+  -e SNIPEIT_API_URL=https://snipeit.example.com/api/v1 \
+  -e SNIPEIT_OAUTH_CLIENT_ID=your-client-id \
+  -e SNIPEIT_OAUTH_CLIENT_SECRET=your-client-secret \
+  -e PUBLIC_URL=http://localhost:4321 \
+  -e SESSION_SECRET=your-session-secret \
+  pixlcrashr/snipeit-fast-ux:latest
+```
+
+### Docker Compose
+
+Build and start the container:
+
+```bash
+docker compose up -d --build
+```
+
+The app will be exposed on port `4321`. Make sure your `.env` file is present in the project root before starting.
 
 ## Configuration
 
-Copy `.env.example` to `.env` and fill in the values:
-
-```bash
-cp .env.example .env
-```
+All configuration is done via environment variables:
 
 | Variable | Description |
 | :--- | :--- |
@@ -21,9 +50,30 @@ cp .env.example .env
 | `SNIPEIT_OAUTH_CLIENT_ID` | OAuth2 client ID from your Snipe-IT OAuth application |
 | `SNIPEIT_OAUTH_CLIENT_SECRET` | OAuth2 client secret from your Snipe-IT OAuth application |
 | `SNIPEIT_OAUTH_REDIRECT_URI` | Redirect URI registered in your Snipe-IT OAuth application, e.g. `http://localhost:4321/api/auth/callback` |
+| `PUBLIC_URL` | The public-facing URL of this app, used for OAuth redirect URIs, e.g. `http://localhost:4321` |
 | `SESSION_SECRET` | A long, random secret used to sign session cookies |
 
+## API Routes
+
+| Route | Description |
+| :--- | :--- |
+| `GET /api/auth/login` | Initiates the OAuth2 authorization flow |
+| `GET /api/auth/callback` | OAuth2 redirect callback; exchanges code for token |
+| `GET /api/auth/logout` | Clears the session and logs the user out |
+
+## License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
+
+---
+
 ## Development
+
+### Prerequisites
+
+- **Node.js** >= 22.12.0
+
+### Local development
 
 ```bash
 # Install dependencies
@@ -35,25 +85,14 @@ npm run dev
 
 The app will be available at `http://localhost:4321`.
 
-## Production
-
-### Docker Compose (recommended)
-
-```bash
-# Build and start the container
-docker compose up -d
-```
-
-The app will be exposed on port `4321`. Make sure your `.env` file is present in the project root before starting.
-
-### Manual build
+### Manual production build
 
 ```bash
 npm run build
 node server.mjs
 ```
 
-## Commands
+### Commands
 
 | Command | Action |
 | :--- | :--- |
@@ -61,18 +100,3 @@ node server.mjs
 | `npm run dev` | Start local dev server at `http://localhost:4321` |
 | `npm run build` | Build for production into `./dist/` |
 | `npm run preview` | Preview the production build locally |
-
-## API Routes
-
-All Snipe-IT API calls are proxied through the application server to avoid exposing credentials to the browser.
-
-| Route | Description |
-| :--- | :--- |
-| `GET /api/auth/login` | Initiates the OAuth2 authorization flow |
-| `GET /api/auth/callback` | OAuth2 redirect callback; exchanges code for token |
-| `GET /api/auth/logout` | Clears the session and logs the user out |
-| `* /api/proxy/[...path]` | Authenticated proxy to the Snipe-IT API |
-
-## License
-
-This project is licensed under the [GNU General Public License v3.0](LICENSE).
