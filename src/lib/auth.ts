@@ -57,7 +57,15 @@ export function clearSessionCookie() {
   });
 }
 
-export async function exchangeCodeForToken(code: string) {
+export function getPublicBaseUrl(): string {
+  return getEnv('PUBLIC_URL') || 'http://localhost:4321';
+}
+
+export function getRedirectUri(): string {
+  return `${getPublicBaseUrl()}/api/auth/callback`;
+}
+
+export async function exchangeCodeForToken(code: string, redirectUri: string) {
   const apiUri = getEnv('SNIPEIT_API_URL');
   if (!apiUri) throw new Error('SNIPEIT_API_URL not configured');
 
@@ -65,7 +73,7 @@ export async function exchangeCodeForToken(code: string) {
     grant_type: 'authorization_code',
     client_id: getEnv('SNIPEIT_OAUTH_CLIENT_ID'),
     client_secret: getEnv('SNIPEIT_OAUTH_CLIENT_SECRET'),
-    redirect_uri: getEnv('SNIPEIT_OAUTH_REDIRECT_URI'),
+    redirect_uri: redirectUri,
     code,
   });
 
@@ -87,14 +95,14 @@ export async function exchangeCodeForToken(code: string) {
   return await response.json();
 }
 
-export function getAuthUrl() {
+export function getAuthUrl(redirectUri: string) {
   const apiUri = getEnv('SNIPEIT_API_URL');
   if (!apiUri) throw new Error('SNIPEIT_API_URL not configured');
 
   const baseUrl = apiUri.replace(/\/api\/v1\/?$/, '');
   const params = new URLSearchParams({
     client_id: getEnv('SNIPEIT_OAUTH_CLIENT_ID'),
-    redirect_uri: getEnv('SNIPEIT_OAUTH_REDIRECT_URI'),
+    redirect_uri: redirectUri,
     response_type: 'code',
     scope: '', // SnipeIT doesn't use scopes extensively in this flow usually
   });

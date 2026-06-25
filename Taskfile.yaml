@@ -1,0 +1,64 @@
+version: "3"
+
+vars:
+  ENV_FILE: .env
+
+tasks:
+  # ---- Production ----
+
+  prod:
+    desc: Build and start the Docker Compose stack in production (detached)
+    cmds:
+      - task: prod:build
+      - task: prod:up
+
+  prod:build:
+    desc: Build the production Docker image
+    cmds:
+      - docker compose build
+
+  prod:up:
+    desc: Start the production stack in the background
+    cmds:
+      - docker compose up -d
+
+  prod:down:
+    desc: Stop and remove the production stack
+    cmds:
+      - docker compose down
+
+  prod:logs:
+    desc: Tail production logs
+    cmds:
+      - docker compose logs -f
+
+  prod:rebuild:
+    desc: Rebuild image and restart the stack
+    cmds:
+      - docker compose build --no-cache
+      - docker compose up -d --force-recreate
+
+  # ---- Development ----
+
+  setup:
+    desc: Set up the local development environment
+    cmds:
+      - task: dev:env
+      - task: dev:install
+
+  dev:env:
+    desc: Copy .env.example to .env if it does not exist
+    status:
+      - test -f {{.ENV_FILE}}
+    cmds:
+      - cp .env.example {{.ENV_FILE}}
+
+  dev:install:
+    desc: Install npm dependencies
+    cmds:
+      - npm ci --legacy-peer-deps
+
+  dev:
+    desc: Start the Astro dev server
+    cmds:
+      - npm run dev

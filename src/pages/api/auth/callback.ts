@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { exchangeCodeForToken, createSession, setSessionCookie } from '../../../lib/auth';
+import { exchangeCodeForToken, createSession, setSessionCookie, getRedirectUri } from '../../../lib/auth';
 
-export const GET: APIRoute = async ({ url, cookies }) => {
+export const GET: APIRoute = async ({ url }) => {
   const code = url.searchParams.get('code');
   const error = url.searchParams.get('error');
 
@@ -14,7 +14,7 @@ export const GET: APIRoute = async ({ url, cookies }) => {
   }
 
   try {
-    const data = await exchangeCodeForToken(code);
+    const data = await exchangeCodeForToken(code, getRedirectUri());
     const { access_token, expires_in } = data;
 
     const sessionToken = await createSession(access_token, expires_in);

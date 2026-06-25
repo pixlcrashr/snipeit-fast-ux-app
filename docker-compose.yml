@@ -3,16 +3,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: snipeit-insert:latest
-    container_name: snipeit-insert
+    image: snipeit-fast-ux-app:latest
+    container_name: snipeit-fast-ux-app
     ports:
       - "4321:4321"
     environment:
       - NODE_ENV=production
+      - PUBLIC_URL=${PUBLIC_URL}
       - SNIPEIT_API_URL=${SNIPEIT_API_URL}
       - SNIPEIT_OAUTH_CLIENT_ID=${SNIPEIT_OAUTH_CLIENT_ID}
       - SNIPEIT_OAUTH_CLIENT_SECRET=${SNIPEIT_OAUTH_CLIENT_SECRET}
-      - SNIPEIT_OAUTH_REDIRECT_URI=${SNIPEIT_OAUTH_REDIRECT_URI}
       - SESSION_SECRET=${SESSION_SECRET}
     env_file:
       - .env
