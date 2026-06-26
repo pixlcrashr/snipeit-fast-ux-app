@@ -40,7 +40,7 @@ export async function getSession(request: Request): Promise<Session | null> {
 export function setSessionCookie(token: string, expiresIn: number) {
   return serialize('session', token, {
     httpOnly: true,
-    secure: import.meta.env.PROD,
+    secure: getPublicBaseUrl().startsWith('https://'),
     sameSite: 'lax',
     path: '/',
     maxAge: expiresIn,
@@ -50,7 +50,7 @@ export function setSessionCookie(token: string, expiresIn: number) {
 export function clearSessionCookie() {
   return serialize('session', '', {
     httpOnly: true,
-    secure: import.meta.env.PROD,
+    secure: getPublicBaseUrl().startsWith('https://'),
     sameSite: 'lax',
     path: '/',
     maxAge: 0,
