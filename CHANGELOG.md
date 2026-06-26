@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.0.4](https://github.com/pixlcrashr/snipeit-fast-ux-app/compare/v0.0.3...v0.0.4) (2026-06-26)
+
+
+### Features
+
+* add release task to Taskfile for automated versioning ([4bb38c7](https://github.com/pixlcrashr/snipeit-fast-ux-app/commit/4bb38c74ed55895e385add3737b16b5a62f841c3))
+
 ## [0.0.3](https://github.com/pixlcrashr/snipeit-fast-ux-app/compare/v0.0.2...v0.0.3) (2026-06-26)
 
 
