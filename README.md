@@ -49,11 +49,12 @@ All configuration is done via environment variables:
 | `SNIPEIT_API_URL` | Base URL of your Snipe-IT API, e.g. `https://snipeit.example.com/api/v1` |
 | `SNIPEIT_OAUTH_CLIENT_ID` | OAuth2 client ID from your Snipe-IT OAuth application |
 | `SNIPEIT_OAUTH_CLIENT_SECRET` | OAuth2 client secret from your Snipe-IT OAuth application |
-| `SNIPEIT_OAUTH_REDIRECT_URI` | Redirect URI registered in your Snipe-IT OAuth application, e.g. `http://localhost:4321/api/auth/callback` |
-| `PUBLIC_URL` | The public-facing URL of this app, used for OAuth redirect URIs, e.g. `http://localhost:4321` |
+| `PUBLIC_URL` | The public-facing URL of this app, used to build the OAuth2 redirect URI, e.g. `http://localhost:4321` |
 | `SESSION_SECRET` | A long, random secret used to sign session cookies |
 
 ## API Routes
+
+All Snipe-IT API calls are proxied through the application server to avoid exposing credentials to the browser.
 
 | Route | Description |
 | :--- | :--- |
