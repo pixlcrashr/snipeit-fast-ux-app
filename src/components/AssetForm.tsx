@@ -37,7 +37,6 @@ interface AssetFormProps {
 }
 
 export default function AssetForm({ apiUrl, accessToken }: AssetFormProps) {
-  const [assetTag, setAssetTag] = useState('');
   const [assetName, setAssetName] = useState('');
   const [assetNameManuallyEdited, setAssetNameManuallyEdited] = useState(false);
   const [serial, setSerial] = useState('');
@@ -104,7 +103,6 @@ export default function AssetForm({ apiUrl, accessToken }: AssetFormProps) {
   const locationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchNextAssetTag();
     fetchStatuses();
   }, [apiUrl, accessToken]);
 
@@ -135,28 +133,6 @@ export default function AssetForm({ apiUrl, accessToken }: AssetFormProps) {
   useEffect(() => { setHighlightedManufacturer(0); }, [manufacturers]);
   useEffect(() => { setHighlightedCategory(0); }, [categories]);
   useEffect(() => { setHighlightedLocation(0); }, [locations]);
-
-  const fetchNextAssetTag = async () => {
-    try {
-      // Fetch latest assets to determine next tag
-      const res = await fetch(`${apiUrl}/hardware?sort=created_at&order=desc&limit=1`, {
-        headers: { 'Authorization': `Bearer ${accessToken}`, 'Accept': 'application/json' },
-      });
-      const data = await res.json();
-      if (data.rows && data.rows.length > 0) {
-        const lastTag = data.rows[0].asset_tag;
-        // Simple increment logic for demo - in production you might want the logic from next-asset-tag.ts
-        const match = lastTag.match(/(\d+)/);
-        if (match) {
-          const num = parseInt(match[0], 10) + 1;
-          const nextTag = lastTag.replace(match[0], num.toString().padStart(match[0].length, '0'));
-          setAssetTag(nextTag);
-        }
-      }
-    } catch (e) {
-      console.error('Failed to fetch next asset tag', e);
-    }
-  };
 
   const fetchStatuses = async () => {
     try {
@@ -577,7 +553,6 @@ export default function AssetForm({ apiUrl, accessToken }: AssetFormProps) {
       if (!finalModelId) throw new Error('Model is required.');
 
       const snipeitFormData = new FormData();
-      snipeitFormData.append('asset_tag', assetTag);
       snipeitFormData.append('name', assetName);
       snipeitFormData.append('serial', serial);
       snipeitFormData.append('status_id', selectedStatus?.id?.toString() || '');
@@ -607,9 +582,9 @@ export default function AssetForm({ apiUrl, accessToken }: AssetFormProps) {
         throw new Error(errorMsg);
       }
 
-      setMessage({ type: 'success', text: 'Asset created successfully!' });
+      const generatedTag = data.payload?.asset_tag || data.asset_tag || '';
+      setMessage({ type: 'success', text: generatedTag ? `Asset created successfully! Asset tag: ${generatedTag}` : 'Asset created successfully!' });
       // Reset form
-      setAssetTag('');
       setAssetName('');
       setAssetNameManuallyEdited(false);
       setSerial('');
@@ -628,7 +603,6 @@ export default function AssetForm({ apiUrl, accessToken }: AssetFormProps) {
       setSelectedLocation(null);
       setLocationSearch('');
       setShowManufacturerField(false);
-      fetchNextAssetTag();
     } catch (e: any) {
       setMessage({ type: 'error', text: e.message });
     } finally {
@@ -803,11 +777,6 @@ export default function AssetForm({ apiUrl, accessToken }: AssetFormProps) {
               <li><span className="dropdown-item text-muted">Type to search companies...</span></li>
             )}
           </ul>
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Asset Tag</label>
-          <input type="text" className="form-control" name="asset_tag" value={assetTag} readOnly autoComplete="off" />
         </div>
 
         <div className="mb-3">
