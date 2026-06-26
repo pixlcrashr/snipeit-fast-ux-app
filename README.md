@@ -52,6 +52,47 @@ All configuration is done via environment variables:
 | `PUBLIC_URL` | The public-facing URL of this app, used to build the OAuth2 redirect URI, e.g. `http://localhost:4321` |
 | `SESSION_SECRET` | A long, random secret used to sign session cookies |
 
+## Reverse Proxy (nginx)
+
+To serve both Snipe-IT and this app on the same domain, use an nginx reverse proxy. The following example serves Snipe-IT at `/` and this app at `/addins/snipeit-fast-ux`:
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name snipeit.example.com;
+
+    # SSL configuration (adjust to your setup)
+    ssl_certificate     /etc/nginx/ssl/snipeit.crt;
+    ssl_certificate_key /etc/nginx/ssl/snipeit.key;
+
+    # Snipe-IT
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # SnipeIT Fast UX
+    location /addins/snipeit-fast-ux/ {
+        proxy_pass http://127.0.0.1:4321/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+When using a reverse proxy with a subpath, set `PUBLIC_URL` to the full public URL including the path:
+
+```bash
+PUBLIC_URL=https://snipeit.example.com/addins/snipeit-fast-ux
+```
+
+This ensures the OAuth2 redirect URI resolves to `https://snipeit.example.com/addins/snipeit-fast-ux/api/auth/callback`. Register this exact URI in your Snipe-IT OAuth2 application's allowed redirect URIs.
+
 ## API Routes
 
 All Snipe-IT API calls are proxied through the application server to avoid exposing credentials to the browser.
