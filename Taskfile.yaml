@@ -62,3 +62,9 @@ tasks:
     desc: Start the Astro dev server
     cmds:
       - npm run dev
+  
+  release:
+    desc: Tags a commit with the next Conventional Commits version and pushed it to origin.
+    cmds:
+      - commit-and-tag-version
+      - git push --follow-tags origin main
