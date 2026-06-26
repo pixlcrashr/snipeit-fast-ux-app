@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.0.7](https://github.com/pixlcrashr/snipeit-fast-ux-app/compare/v0.0.6...v0.0.7) (2026-06-26)
+
+
+### Features
+
+* remove manual asset tag generation and use Snipe-IT auto-generated tags ([a8ec77d](https://github.com/pixlcrashr/snipeit-fast-ux-app/commit/a8ec77d8bd98807e21e76e32c4dd9c0da279014d))
+
 ## [0.0.6](https://github.com/pixlcrashr/snipeit-fast-ux-app/compare/v0.0.5...v0.0.6) (2026-06-26)
 
 
