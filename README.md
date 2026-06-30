@@ -6,7 +6,7 @@ A lightweight web application for quickly adding assets to a [Snipe-IT](https://
 
 - A running **Snipe-IT** instance with an OAuth2 application configured
 
-## Quick Start with Docker
+## Quick Start
 
 A production Docker image is published to Docker Hub at [`pixlcrashr/snipeit-fast-ux`](https://hub.docker.com/r/pixlcrashr/snipeit-fast-ux). It is a lightweight Node.js 22 Alpine image (multi-stage build) that serves the Astro SSR app via Fastify on port `4321`.
 
@@ -15,46 +15,46 @@ Tags:
 - `pixlcrashr/snipeit-fast-ux:latest` — latest release
 - `pixlcrashr/snipeit-fast-ux:X.Y.Z` — specific version (matching the Git tag `vX.Y.Z`)
 
-Pull and run with Docker:
-
-```bash
-docker pull pixlcrashr/snipeit-fast-ux:latest
-docker run -d \
-  --name snipeit-fast-ux \
-  -p 4321:4321 \
-  -e SNIPEIT_API_URL=https://snipeit.example.com/api/v1 \
-  -e SNIPEIT_OAUTH_CLIENT_ID=your-client-id \
-  -e SNIPEIT_OAUTH_CLIENT_SECRET=your-client-secret \
-  -e PUBLIC_URL=http://localhost:4321 \
-  -e SESSION_SECRET=your-session-secret \
-  pixlcrashr/snipeit-fast-ux:latest
-```
-
 ### Docker Compose
 
-Build and start the container:
+1. Copy `.env.example` to `.env` and fill in your values:
+    ```bash
+    cp .env.example .env
+    ```
 
-```bash
-docker compose up -d --build
-```
+2. Start the container:
 
-The app will be exposed on port `4321`. Make sure your `.env` file is present in the project root before starting.
+    ```bash
+    docker compose up -d
+    ```
+
+    > **Tip:** Add `--build` to force a rebuild of the image even if it already exists locally. This is recommended to ensure you're running the latest version:
+    > ```bash
+    > docker compose up -d --build
+    > ```
+
+The app will be exposed on port `0.0.0.0:4321`.
 
 ## Configuration
 
 All configuration is done via environment variables:
 
-| Variable | Description |
-| :--- | :--- |
-| `SNIPEIT_API_URL` | Base URL of your Snipe-IT API, e.g. `https://snipeit.example.com/api/v1` |
-| `SNIPEIT_OAUTH_CLIENT_ID` | OAuth2 client ID from your Snipe-IT OAuth application |
-| `SNIPEIT_OAUTH_CLIENT_SECRET` | OAuth2 client secret from your Snipe-IT OAuth application |
-| `PUBLIC_URL` | The public-facing URL of this app, used to build the OAuth2 redirect URI, e.g. `http://localhost:4321` |
-| `SESSION_SECRET` | A long, random secret used to sign session cookies |
+| Variable | Required | Description |
+| :--- | :--- | :--- |
+| `SNIPEIT_API_URL` | Yes | Base URL of your Snipe-IT API, usually `https://snipeit.example.com/api/v1` |
+| `SNIPEIT_OAUTH_CLIENT_ID` | Yes | OAuth2 client ID from your Snipe-IT OAuth application |
+| `SNIPEIT_OAUTH_CLIENT_SECRET` | Yes | OAuth2 client secret from your Snipe-IT OAuth application |
+| `SNIPEIT_OAUTH_TOKEN_URL` | Yes | Full URL of the OAuth2 token endpoint, usually `https://snipeit.example.com/oauth/token` |
+| `SNIPEIT_OAUTH_AUTHORIZE_URL` | Yes | Full URL of the OAuth2 authorize endpoint, usually `https://snipeit.example.com/oauth/authorize` |
+| `PUBLIC_URL` | Yes | The public-facing URL of this app, used to build the OAuth2 redirect URI, e.g. `http://localhost:4321` |
+| `SESSION_SECRET` | Yes | A long, random secret used to sign session cookies |
+| `COOKIE_SAMESITE` | No | Cookie SameSite policy: `strict`, `lax`, or `none`. Default: `lax` |
+| `COOKIE_SECURE` | No | Cookie Secure flag: `true` or `false`. Default: auto-detected from `PUBLIC_URL` protocol |
+| `COOKIE_HTTPONLY` | No | Cookie HttpOnly flag: `true` or `false`. Default: `true` |
 
 ## Reverse Proxy (nginx)
 
-To serve both Snipe-IT and this app on the same domain, use an nginx reverse proxy. The following example serves Snipe-IT at `/` and this app at `/addins/snipeit-fast-ux`:
+To serve both Snipe-IT and this app on the same domain, for example, use a nginx reverse proxy. The following example serves Snipe-IT at `/` and this app at `/addins/snipeit-fast-ux`:
 
 ```nginx
 server {
@@ -91,21 +91,15 @@ When using a reverse proxy with a subpath, set `PUBLIC_URL` to the full public U
 PUBLIC_URL=https://snipeit.example.com/addins/snipeit-fast-ux
 ```
 
-This ensures the OAuth2 redirect URI resolves to `https://snipeit.example.com/addins/snipeit-fast-ux/api/auth/callback`. Register this exact URI in your Snipe-IT OAuth2 application's allowed redirect URIs.
+This results in the OAuth2 redirect URI `https://snipeit.example.com/addins/snipeit-fast-ux/api/auth/callback`. Register this exact URI in your Snipe-IT OAuth2 application's allowed redirect URIs.
 
 ## API Routes
-
-All Snipe-IT API calls are proxied through the application server to avoid exposing credentials to the browser.
 
 | Route | Description |
 | :--- | :--- |
 | `GET /api/auth/login` | Initiates the OAuth2 authorization flow |
 | `GET /api/auth/callback` | OAuth2 redirect callback; exchanges code for token |
 | `GET /api/auth/logout` | Clears the session and logs the user out |
-
-## License
-
-This project is licensed under the [GNU General Public License v3.0](LICENSE).
 
 ---
 
@@ -134,11 +128,10 @@ npm run build
 node server.mjs
 ```
 
-### Commands
+## Road Map
 
-| Command | Action |
-| :--- | :--- |
-| `npm install` | Install dependencies |
-| `npm run dev` | Start local dev server at `http://localhost:4321` |
-| `npm run build` | Build for production into `./dist/` |
-| `npm run preview` | Preview the production build locally |
+- [x] Add ui for fast asset creation
+- [ ] Add ui for fast component creation
+- [ ] Add ui for fast checkin/checkout (scan asset, scan QR code / select user, done)
+- [ ] Add ui for QR code creation for users
+- [ ] Add ui for a slightly more advanced reservation system (i.e. scheduled future checkouts)

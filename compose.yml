@@ -1,9 +1,9 @@
 services:
   app:
+    image: pixlcrashr/snipeit-fast-ux:latest
     build:
       context: .
       dockerfile: Dockerfile
-    image: snipeit-fast-ux-app:latest
     container_name: snipeit-fast-ux-app
     ports:
       - "4321:4321"
@@ -13,7 +13,12 @@ services:
       - SNIPEIT_API_URL=${SNIPEIT_API_URL}
       - SNIPEIT_OAUTH_CLIENT_ID=${SNIPEIT_OAUTH_CLIENT_ID}
       - SNIPEIT_OAUTH_CLIENT_SECRET=${SNIPEIT_OAUTH_CLIENT_SECRET}
+      - SNIPEIT_OAUTH_TOKEN_URL=${SNIPEIT_OAUTH_TOKEN_URL}
+      - SNIPEIT_OAUTH_AUTHORIZE_URL=${SNIPEIT_OAUTH_AUTHORIZE_URL}
       - SESSION_SECRET=${SESSION_SECRET}
+      - COOKIE_SAMESITE=${COOKIE_SAMESITE:-lax}
+      - COOKIE_SECURE=${COOKIE_SECURE:-}
+      - COOKIE_HTTPONLY=${COOKIE_HTTPONLY:-true}
     env_file:
       - .env
     restart: unless-stopped

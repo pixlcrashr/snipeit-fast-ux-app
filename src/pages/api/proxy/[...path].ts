@@ -1,19 +1,20 @@
-import type { APIRoute } from 'astro';
+import type {
+  APIRoute,
+} from 'astro';
+import env from '../../../lib/env';
 
 export const ALL: APIRoute = async ({ request, params }) => {
-  const { path } = params;
-  const API_URL = (import.meta.env.SNIPEIT_API_URL || process.env.SNIPEIT_API_URL)?.replace(/\/$/, '');
-  
-  if (!API_URL) {
-    return new Response('SNIPEIT_API_URL not configured', { status: 500 });
+  if (!import.meta.env.DEV) {
+    return new Response(null, { status: 404 });
   }
+
+  const { path } = params;
+  const API_URL = env.SNIPEIT_API_URL.replace(/\/$/, '');
 
   // Build the target URL (preserving query params)
   const url = new URL(request.url);
   const cleanPath = path?.startsWith('/') ? path.substring(1) : path;
   const targetUrl = `${API_URL}/${cleanPath}${url.search}`;
-
-  console.log(`[Proxy] ${request.method} ${request.url} -> ${targetUrl}`);
 
   // Clone headers and handle Authorization
   const headers = new Headers();
@@ -32,14 +33,12 @@ export const ALL: APIRoute = async ({ request, params }) => {
       redirect: 'follow'
     });
 
-    // Return the response as is
     const body = await response.blob();
     return new Response(body, {
       status: response.status,
       statusText: response.statusText,
       headers: {
         'Content-Type': response.headers.get('Content-Type') || 'application/json',
-        'Access-Control-Allow-Origin': '*', // Optional, since this is server-to-server
       }
     });
   } catch (error: any) {

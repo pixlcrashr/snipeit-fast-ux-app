@@ -1,5 +1,14 @@
-import type { APIRoute } from 'astro';
-import { exchangeCodeForToken, createSession, setSessionCookie, getRedirectUri } from '../../../lib/auth';
+import type {
+  APIRoute,
+} from 'astro';
+import {
+  exchangeCodeForToken,
+  createSession,
+  setSessionCookie,
+  getRedirectUri,
+} from '../../../lib/auth';
+
+
 
 export const GET: APIRoute = async ({ url }) => {
   const code = url.searchParams.get('code');

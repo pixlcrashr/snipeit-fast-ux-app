@@ -1,5 +1,11 @@
-import type { APIRoute } from 'astro';
-import { clearSessionCookie } from '../../../lib/auth';
+import type {
+  APIRoute,
+} from 'astro';
+import {
+  clearSessionCookie,
+} from '../../../lib/auth';
+
+
 
 export const GET: APIRoute = async () => {
   return new Response(null, {

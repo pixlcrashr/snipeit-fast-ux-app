@@ -1,14 +1,19 @@
-import { SignJWT, jwtVerify } from 'jose';
-import { parse, serialize } from 'cookie';
-import type { APIContext } from 'astro';
+import {
+  SignJWT,
+  jwtVerify,
+} from 'jose';
+import {
+  parse,
+  serialize,
+} from 'cookie';
+import env from './env';
 
-const getEnv = (key: string) => {
-  return import.meta.env[key] || (typeof process !== 'undefined' ? process.env[key] : undefined) || '';
+const SECRET = new TextEncoder().encode(env.SESSION_SECRET);
+
+const getCookieSecure = (): boolean => {
+  if (env.COOKIE_SECURE !== undefined) return env.COOKIE_SECURE;
+  return env.PUBLIC_URL.startsWith('https://');
 };
-
-const SECRET = new TextEncoder().encode(
-  getEnv('SESSION_SECRET') || 'fallback-secret-at-least-32-chars-long'
-);
 
 export interface Session {
   accessToken: string;
@@ -39,9 +44,9 @@ export async function getSession(request: Request): Promise<Session | null> {
 
 export function setSessionCookie(token: string, expiresIn: number) {
   return serialize('session', token, {
-    httpOnly: true,
-    secure: getPublicBaseUrl().startsWith('https://'),
-    sameSite: 'lax',
+    httpOnly: env.COOKIE_HTTPONLY,
+    secure: getCookieSecure(),
+    sameSite: env.COOKIE_SAMESITE,
     path: '/',
     maxAge: expiresIn,
   });
@@ -49,16 +54,16 @@ export function setSessionCookie(token: string, expiresIn: number) {
 
 export function clearSessionCookie() {
   return serialize('session', '', {
-    httpOnly: true,
-    secure: getPublicBaseUrl().startsWith('https://'),
-    sameSite: 'lax',
+    httpOnly: env.COOKIE_HTTPONLY,
+    secure: getCookieSecure(),
+    sameSite: env.COOKIE_SAMESITE,
     path: '/',
     maxAge: 0,
   });
 }
 
 export function getPublicBaseUrl(): string {
-  return getEnv('PUBLIC_URL') || 'http://localhost:4321';
+  return env.PUBLIC_URL;
 }
 
 export function getRedirectUri(): string {
@@ -66,20 +71,15 @@ export function getRedirectUri(): string {
 }
 
 export async function exchangeCodeForToken(code: string, redirectUri: string) {
-  const apiUri = getEnv('SNIPEIT_API_URL');
-  if (!apiUri) throw new Error('SNIPEIT_API_URL not configured');
-
   const params = new URLSearchParams({
     grant_type: 'authorization_code',
-    client_id: getEnv('SNIPEIT_OAUTH_CLIENT_ID'),
-    client_secret: getEnv('SNIPEIT_OAUTH_CLIENT_SECRET'),
+    client_id: env.SNIPEIT_OAUTH_CLIENT_ID,
+    client_secret: env.SNIPEIT_OAUTH_CLIENT_SECRET,
     redirect_uri: redirectUri,
     code,
   });
 
-  // SnipeIT OAuth token endpoint is usually at /oauth/token relative to the base URL
-  const baseUrl = apiUri.replace(/\/api\/v1\/?$/, '');
-  const response = await fetch(`${baseUrl}/oauth/token`, {
+  const response = await fetch(env.SNIPEIT_OAUTH_TOKEN_URL, {
     method: 'POST',
     body: params,
     headers: {
@@ -96,16 +96,12 @@ export async function exchangeCodeForToken(code: string, redirectUri: string) {
 }
 
 export function getAuthUrl(redirectUri: string) {
-  const apiUri = getEnv('SNIPEIT_API_URL');
-  if (!apiUri) throw new Error('SNIPEIT_API_URL not configured');
-
-  const baseUrl = apiUri.replace(/\/api\/v1\/?$/, '');
   const params = new URLSearchParams({
-    client_id: getEnv('SNIPEIT_OAUTH_CLIENT_ID'),
+    client_id: env.SNIPEIT_OAUTH_CLIENT_ID,
     redirect_uri: redirectUri,
     response_type: 'code',
     scope: '', // SnipeIT doesn't use scopes extensively in this flow usually
   });
 
-  return `${baseUrl}/oauth/authorize?${params.toString()}`;
+  return `${env.SNIPEIT_OAUTH_AUTHORIZE_URL}?${params.toString()}`;
 }
