@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.0.8](https://github.com/pixlcrashr/snipeit-fast-ux-app/compare/v0.0.7...v0.0.8) (2026-06-30)
+
+
+### Features
+
+* add explicit OAuth2 URL configuration and cookie security options ([206fd07](https://github.com/pixlcrashr/snipeit-fast-ux-app/commit/206fd07d1647557ef299d2a7400cfdfef178341e))
+
 ## [0.0.7](https://github.com/pixlcrashr/snipeit-fast-ux-app/compare/v0.0.6...v0.0.7) (2026-06-26)
 
 
